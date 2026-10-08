@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lifelink-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: lifelink
+      POSTGRES_USER: lifelink
+      POSTGRES_PASSWORD: lifelink_secure_password_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lifelink -d lifelink"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lifelink-backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lifelink
+      SPRING_DATASOURCE_USERNAME: lifelink
+      SPRING_DATASOURCE_PASSWORD: lifelink_secure_password_2026
+      SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
+      JWT_SECRET: lifelink_production_grade_jwt_secret_key_minimum_256_bits_length_for_hmac_sha256_algorithm_2026
+      JWT_ACCESS_EXPIRATION_MS: 900000
+      JWT_REFRESH_EXPIRATION_MS: 604800000
+      CORS_ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3000,http://localhost:80
+      STORAGE_LOCAL_DIR: /app/uploads
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      AI_FALLBACK_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - backend_uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lifelink-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+      - "5173:80"
+
+volumes:
+  postgres_data:
+  backend_uploads:

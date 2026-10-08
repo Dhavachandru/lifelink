@@ -1,0 +1,31 @@
+# Build outputs
+**/target/
+**/dist/
+**/build/
+
+# Dependencies
+**/node_modules/
+.pnp
+.pnp.js
+
+# Environment variables & secrets
+.env
+*.env.local
+backend/.env
+frontend/.env
+
+# Local runtime data & uploads
+**/lifelink-uploads/
+*.log
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS metadata
+Thumbs.db
+Desktop.ini
+.DS_Store
