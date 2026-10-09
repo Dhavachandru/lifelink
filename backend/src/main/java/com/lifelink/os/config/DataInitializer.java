@@ -39,10 +39,10 @@ public class DataInitializer implements CommandLineRunner {
         Optional<User> existingUser = userRepository.findByEmail(demoEmail);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            // Ensure password matches the demo password
             user.setPasswordHash(passwordEncoder.encode(demoPassword));
+            user.setDemo(true);
             userRepository.save(user);
-            log.info("Verified demo user: {} with password: {}", demoEmail, demoPassword);
+            log.info("Verified demo user: {}", demoEmail);
         } else {
             User newUser = new User();
             newUser.setId(UUID.fromString("a0000000-0000-0000-0000-000000000001"));
@@ -51,11 +51,12 @@ public class DataInitializer implements CommandLineRunner {
             newUser.setFullName("Alex Mercer");
             newUser.setPhoneNumber("+1 (555) 234-5678");
             newUser.setRole("USER");
+            newUser.setDemo(true);
             userRepository.save(newUser);
 
             UserSettings settings = new UserSettings(newUser);
             userSettingsRepository.save(settings);
-            log.info("Created demo user: {} with password: {}", demoEmail, demoPassword);
+            log.info("Initialized demo user: {}", demoEmail);
         }
     }
 }

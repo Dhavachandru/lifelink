@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { notificationApi } from '../api/notificationApi';
 import { NotificationItem } from '../types';
+import { EmergencyHotlineModal } from './EmergencyHotlineModal';
 import {
   ShieldAlert,
   Car,
@@ -14,14 +15,13 @@ import {
   PhoneCall,
   Menu,
   X,
-  AlertTriangle,
-  ChevronDown,
+  History,
+  AlertOctagon,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -30,18 +30,19 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      notificationApi.getAll()
+      notificationApi
+        .getAll()
         .then(setNotifications)
-        .catch(err => console.warn('Could not load notifications', err));
+        .catch((err) => console.warn('Could not load notifications', err));
     }
   }, [isAuthenticated, location.pathname]);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleMarkAllRead = async () => {
     try {
       await notificationApi.markAllAsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     } catch (err) {
       console.warn('Failed to mark notifications read', err);
     }
@@ -49,7 +50,8 @@ export const Navbar: React.FC = () => {
 
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Report Incident', path: '/report', icon: ShieldAlert, highlight: true },
+    { name: 'Report Incident', path: '/report', icon: AlertOctagon, highlight: true },
+    { name: 'Incidents', path: '/incidents', icon: History },
     { name: 'Vehicle Vault', path: '/vault', icon: Car },
     { name: 'Contacts', path: '/contacts', icon: Users },
     { name: 'Settings', path: '/settings', icon: Settings },
@@ -57,20 +59,33 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-md border-b border-slate-800">
+      <EmergencyHotlineModal
+        isOpen={emergencyModalOpen}
+        onClose={() => setEmergencyModalOpen(false)}
+      />
+
+      <header className="sticky top-0 z-40 bg-surface-card/95 backdrop-blur-sm border-b border-surface-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2.5 group">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center shadow-glow-emerald group-hover:scale-105 transition-transform">
-                  <ShieldAlert className="w-5 h-5 text-white" />
+              <Link
+                to={isAuthenticated ? '/dashboard' : '/'}
+                className="flex items-center gap-2.5 group"
+              >
+                <div className="w-8 h-8 rounded-xl bg-forest-950 border border-forest-800/80 flex items-center justify-center text-forest-400 group-hover:border-forest-600 transition-colors">
+                  <ShieldAlert className="w-4 h-4" />
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col text-left">
                   <span className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-                    LIFELINK <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 font-mono border border-emerald-800/60">OS</span>
+                    LIFELINK{' '}
+                    <span className="text-[10px] font-mono font-semibold px-1 py-0.5 rounded bg-surface-elevated text-forest-300 border border-surface-border">
+                      OS
+                    </span>
                   </span>
-                  <span className="text-[10px] text-slate-400 tracking-wider uppercase font-medium">Incident Protocol</span>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    Incident Protocol
+                  </span>
                 </div>
               </Link>
             </div>
@@ -78,46 +93,70 @@ export const Navbar: React.FC = () => {
             {/* Desktop Navigation */}
             {isAuthenticated ? (
               <nav className="hidden md:flex items-center gap-1">
-                {navLinks.map(link => {
+                {navLinks.map((link) => {
                   const Icon = link.icon;
-                  const isActive = location.pathname === link.path;
+                  const isActive =
+                    location.pathname === link.path ||
+                    (link.path === '/incidents' && location.pathname.startsWith('/incidents/'));
                   return (
                     <Link
                       key={link.path}
                       to={link.path}
-                      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all ${
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
                         link.highlight
-                          ? 'bg-red-950/70 hover:bg-red-900/80 text-red-300 border border-red-800/60 shadow-glow-red'
+                          ? 'bg-red-950/70 hover:bg-red-900/80 text-red-200 border border-red-800/60 shadow-subtle'
                           : isActive
-                          ? 'bg-slate-850 text-white border border-slate-700'
-                          : 'text-slate-300 hover:text-white hover:bg-slate-900'
+                          ? 'bg-surface-elevated text-white border border-surface-border'
+                          : 'text-slate-300 hover:text-white hover:bg-surface-850'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${link.highlight ? 'text-red-400' : isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+                      <Icon
+                        className={`w-3.5 h-3.5 ${
+                          link.highlight
+                            ? 'text-red-400'
+                            : isActive
+                            ? 'text-forest-400'
+                            : 'text-slate-400'
+                        }`}
+                      />
                       <span>{link.name}</span>
                     </Link>
                   );
                 })}
               </nav>
             ) : (
-              <nav className="hidden md:flex items-center gap-4">
-                <Link to="/#features" className="text-sm font-medium text-slate-300 hover:text-white">Features</Link>
-                <Link to="/#triage" className="text-sm font-medium text-slate-300 hover:text-white">AI Triage</Link>
-                <Link to="/#vault" className="text-sm font-medium text-slate-300 hover:text-white">Vehicle Vault</Link>
+              <nav className="hidden md:flex items-center gap-5 text-xs font-medium text-slate-300">
+                <Link to="/#features" className="hover:text-white transition-colors">
+                  Scope & Features
+                </Link>
+                <Link to="/#triage" className="hover:text-white transition-colors">
+                  AI Triage Sandbox
+                </Link>
+                <Link to="/login" className="hover:text-white transition-colors">
+                  Sign In
+                </Link>
+                <Link
+                  to="/report"
+                  className="px-3.5 py-1.5 rounded-xl bg-red-700 hover:bg-red-600 text-white font-semibold transition-colors flex items-center gap-1.5"
+                >
+                  <AlertOctagon className="w-3.5 h-3.5" />
+                  <span>Report Incident</span>
+                </Link>
               </nav>
             )}
 
-            {/* Right action area */}
-            <div className="flex items-center gap-3">
+            {/* Right Action Area */}
+            <div className="flex items-center gap-2.5">
               {/* Emergency Hotline Button */}
               <button
                 type="button"
                 onClick={() => setEmergencyModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-900/60 hover:bg-red-800/80 text-red-200 border border-red-700/60 text-xs font-semibold shadow-glow-red transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-950/60 hover:bg-red-900/60 text-red-200 border border-red-800/60 text-xs font-semibold transition-colors"
                 title="Immediate Emergency Hotline Assistance"
               >
-                <PhoneCall className="w-3.5 h-3.5 text-red-400 animate-pulse" />
+                <PhoneCall className="w-3.5 h-3.5 text-red-400" />
                 <span className="hidden sm:inline">Emergency SOS</span>
+                <span className="sm:hidden font-mono">SOS</span>
               </button>
 
               {isAuthenticated ? (
@@ -127,44 +166,58 @@ export const Navbar: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setNotificationsOpen(!notificationsOpen)}
-                      className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 border border-slate-800 relative transition-colors"
+                      className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-surface-elevated border border-surface-border relative transition-colors"
                       aria-label="Notifications"
                     >
                       <Bell className="w-4 h-4" />
                       {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 text-slate-950 rounded-full text-[10px] font-bold flex items-center justify-center">
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-forest-600 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
                           {unreadCount}
                         </span>
                       )}
                     </button>
 
-                    {/* Notifications drop-down */}
                     {notificationsOpen && (
-                      <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900 border border-slate-750 rounded-2xl shadow-2xl p-4 z-50">
-                        <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-2">
-                          <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Alerts & Notifications</h4>
+                      <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-surface-elevated border border-surface-border rounded-2xl shadow-elevated p-4 z-50 text-left">
+                        <div className="flex items-center justify-between pb-3 border-b border-surface-border mb-2">
+                          <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
+                            Alerts & Notifications
+                          </h4>
                           {unreadCount > 0 && (
                             <button
                               onClick={handleMarkAllRead}
-                              className="text-[11px] text-emerald-400 hover:underline"
+                              className="text-[11px] text-forest-400 hover:underline"
                             >
-                              Mark all as read
+                              Mark all read
                             </button>
                           )}
                         </div>
+
                         <div className="max-h-72 overflow-y-auto space-y-2">
                           {notifications.length === 0 ? (
-                            <p className="text-xs text-slate-400 py-4 text-center">No notifications yet.</p>
+                            <p className="text-xs text-slate-400 text-center py-6">
+                              No notifications
+                            </p>
                           ) : (
-                            notifications.slice(0, 6).map(n => (
+                            notifications.map((n) => (
                               <div
                                 key={n.id}
-                                className={`p-2.5 rounded-xl text-xs transition-colors ${
-                                  n.read ? 'bg-slate-950/40 text-slate-400' : 'bg-slate-850/80 text-slate-200 border border-slate-700/60'
+                                className={`p-2.5 rounded-xl border text-xs transition-colors ${
+                                  n.read
+                                    ? 'bg-surface-card border-surface-border text-slate-400'
+                                    : 'bg-surface-850 border-surface-border text-slate-200'
                                 }`}
                               >
-                                <p className="font-semibold text-white mb-0.5">{n.title}</p>
-                                <p className="text-[11px] leading-relaxed text-slate-300">{n.message}</p>
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="font-semibold text-white">{n.title}</span>
+                                  <span className="text-[10px] text-slate-400">
+                                    {new Date(n.createdAt).toLocaleDateString([], {
+                                      month: 'short',
+                                      day: 'numeric',
+                                    })}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-slate-300">{n.message}</p>
                               </div>
                             ))
                           )}
@@ -173,43 +226,33 @@ export const Navbar: React.FC = () => {
                     )}
                   </div>
 
-                  {/* User profile & logout */}
-                  <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-800">
-                    <span className="text-xs font-medium text-slate-300 max-w-[120px] truncate">{user?.fullName || 'User'}</span>
-                    <button
-                      onClick={logout}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-900 transition-colors"
-                      title="Log Out"
-                    >
-                      <LogOut className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {/* Sign Out Button */}
+                  <button
+                    onClick={logout}
+                    className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-surface-elevated border border-surface-border transition-colors"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Sign Out</span>
+                  </button>
                 </>
               ) : (
-                <div className="flex items-center gap-2">
-                  <Link
-                    to="/login"
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 border border-slate-800 transition-colors"
-                  >
-                    Log In
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 shadow-glow-emerald transition-all"
-                  >
-                    Get Started
-                  </Link>
-                </div>
+                <Link
+                  to="/login"
+                  className="hidden sm:inline-flex px-3 py-1.5 rounded-xl text-xs font-medium text-slate-200 hover:bg-surface-elevated border border-surface-border transition-colors"
+                >
+                  Sign In
+                </Link>
               )}
 
-              {/* Mobile menu button */}
+              {/* Mobile Menu Button */}
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 border border-slate-800"
-                aria-label="Toggle navigation"
+                className="md:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-surface-elevated border border-surface-border"
+                aria-label="Toggle Navigation"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -217,10 +260,15 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-slate-950 border-b border-slate-800 px-4 pt-2 pb-4 space-y-1">
+          <div className="md:hidden bg-surface-card border-b border-surface-border px-4 pt-3 pb-5 space-y-2 text-left">
             {isAuthenticated ? (
               <>
-                {navLinks.map(link => {
+                <div className="px-3 py-2 rounded-xl bg-surface-elevated border border-surface-border mb-3 text-xs">
+                  <span className="text-slate-400 block text-[11px]">Signed in as</span>
+                  <span className="font-semibold text-white">{user?.fullName || 'Driver'}</span>
+                </div>
+
+                {navLinks.map((link) => {
                   const Icon = link.icon;
                   const isActive = location.pathname === link.path;
                   return (
@@ -228,12 +276,12 @@ export const Navbar: React.FC = () => {
                       key={link.path}
                       to={link.path}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium ${
                         link.highlight
-                          ? 'bg-red-950/70 text-red-300 border border-red-800/60'
+                          ? 'bg-red-950/70 text-red-200 border border-red-800/60'
                           : isActive
-                          ? 'bg-slate-850 text-white'
-                          : 'text-slate-300 hover:bg-slate-900'
+                          ? 'bg-surface-elevated text-white'
+                          : 'text-slate-300 hover:bg-surface-elevated'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -241,92 +289,39 @@ export const Navbar: React.FC = () => {
                     </Link>
                   );
                 })}
+
                 <button
                   onClick={() => {
-                    logout();
                     setMobileMenuOpen(false);
+                    logout();
                   }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-slate-900"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-red-400 hover:bg-surface-elevated text-left"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>Log Out ({user?.email})</span>
+                  <span>Sign Out</span>
                 </button>
               </>
             ) : (
-              <div className="space-y-2 pt-2">
+              <>
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full py-2 text-center text-sm rounded-xl border border-slate-800 text-slate-200"
+                  className="block px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-surface-elevated"
                 >
-                  Log In
+                  Sign In
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full py-2 text-center text-sm rounded-xl bg-emerald-600 text-white font-semibold"
+                  className="block px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-surface-elevated"
                 >
-                  Get Started
+                  Create Account
                 </Link>
-              </div>
+              </>
             )}
           </div>
         )}
       </header>
-
-      {/* Emergency SOS Modal */}
-      {emergencyModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-slate-900 border border-red-700/60 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
-            <button
-              onClick={() => setEmergencyModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-red-950 flex items-center justify-center text-red-400 border border-red-700 shadow-glow-red animate-pulse">
-                <AlertTriangle className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">Emergency Services Hotline</h3>
-                <p className="text-xs text-red-300">Life-Threatening Emergency Protocol</p>
-              </div>
-            </div>
-
-            <p className="text-sm text-slate-300 mb-6 leading-relaxed">
-              If someone is injured, unconscious, trapped, or there is an active highway hazard or vehicle fire, do not wait for an app response. Contact professional emergency dispatch immediately.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-              <a
-                href="tel:911"
-                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm shadow-glow-red transition-all"
-              >
-                <PhoneCall className="w-4 h-4" />
-                <span>Call 911 (US / Canada)</span>
-              </a>
-              <a
-                href="tel:112"
-                className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all"
-              >
-                <PhoneCall className="w-4 h-4" />
-                <span>Call 112 (Europe / Intl)</span>
-              </a>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400">
-              <p className="font-semibold text-slate-300 mb-1">What to tell the dispatcher:</p>
-              <ul className="list-disc pl-4 space-y-1">
-                <li>Your exact highway mile marker or closest intersection</li>
-                <li>Number of injured occupants and current condition</li>
-                <li>Whether traffic lanes are blocked</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

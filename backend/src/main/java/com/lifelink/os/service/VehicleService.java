@@ -199,6 +199,23 @@ public class VehicleService {
     }
 
     @Transactional(readOnly = true)
+    public byte[] downloadVehicleDocument(UUID documentId, UUID userId) {
+        VehicleDocument doc = vehicleDocumentRepository.findByIdAndVehicleUserId(documentId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found or unauthorized"));
+
+        return storageService.loadFile(doc.getFileKey());
+    }
+
+    @Transactional(readOnly = true)
+    public VehicleDocumentDto getVehicleDocumentById(UUID documentId, UUID userId) {
+        VehicleDocument doc = vehicleDocumentRepository.findByIdAndVehicleUserId(documentId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found or unauthorized"));
+
+        return VehicleDocumentDto.fromEntity(doc);
+    }
+
+
+    @Transactional(readOnly = true)
     public List<VehicleServiceRecordDto> getServiceRecords(UUID vehicleId, UUID userId) {
         vehicleRepository.findByIdAndUserId(vehicleId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found or unauthorized"));

@@ -1,55 +1,64 @@
 import React from 'react';
-import { ShieldAlert, ExternalLink, HeartHandshake, Lock, Compass } from 'lucide-react';
+import { ShieldAlert, ExternalLink, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-slate-950 border-t border-slate-900 text-slate-400 text-xs py-12 px-4 sm:px-6 lg:px-8 mt-auto">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+    <footer className="bg-surface-card border-t border-surface-border text-slate-400 text-xs py-10 px-4 sm:px-6 lg:px-8 mt-auto">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 text-left">
         {/* Brand */}
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold">
+            <div className="w-7 h-7 rounded-lg bg-forest-950 border border-forest-800/80 flex items-center justify-center text-forest-400 font-bold">
               <ShieldAlert className="w-4 h-4" />
             </div>
-            <span className="text-white font-bold text-sm tracking-wide">LIFELINK OS</span>
+            <span className="text-white font-bold text-sm tracking-tight">LIFELINK OS</span>
           </div>
           <p className="text-slate-400 text-xs leading-relaxed">
-            “When something goes wrong, know what to do next.” High-reliability incident response for breakdowns and accidents.
+            &ldquo;When something goes wrong, know what to do next.&rdquo; Calm, mission-critical incident response for vehicle breakdowns and collisions.
           </p>
-          <div className="flex items-center gap-2 text-[11px] text-emerald-400">
+          <div className="flex items-center gap-2 text-[11px] text-forest-400">
             <Lock className="w-3.5 h-3.5" />
-            <span>Zero silent tracking • Owner-scoped security</span>
+            <span>Zero silent tracking • Owner-scoped vault</span>
           </div>
         </div>
 
-        {/* Core Domains */}
+        {/* Modules */}
         <div>
           <h4 className="text-white font-semibold text-xs uppercase tracking-wider mb-3">Incident Modules</h4>
-          <ul className="space-y-2">
-            <li className="text-emerald-400 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <ul className="space-y-2 text-xs">
+            <li className="text-forest-400 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-forest-400" />
               <span>Vehicle Breakdown (Live)</span>
             </li>
-            <li className="text-emerald-400 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <li className="text-forest-400 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-forest-400" />
               <span>Vehicle Accident (Live)</span>
             </li>
             <li className="text-slate-500 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
               <span>Home Emergencies (Upcoming)</span>
             </li>
             <li className="text-slate-500 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
               <span>Travel & Transit (Upcoming)</span>
             </li>
           </ul>
         </div>
 
-        {/* Developer & Platform */}
+        {/* Navigation & Platform */}
         <div>
-          <h4 className="text-white font-semibold text-xs uppercase tracking-wider mb-3">Platform & Specs</h4>
-          <ul className="space-y-2">
+          <h4 className="text-white font-semibold text-xs uppercase tracking-wider mb-3">System & Vault</h4>
+          <ul className="space-y-2 text-xs">
+            <li>
+              <Link to="/report" className="hover:text-white">Report an incident</Link>
+            </li>
+            <li>
+              <Link to="/vault" className="hover:text-white">Vehicle & Document Vault</Link>
+            </li>
+            <li>
+              <Link to="/settings" className="hover:text-white">Privacy Controls & Data Export</Link>
+            </li>
             <li>
               <a
                 href="http://localhost:8080/swagger-ui.html"
@@ -61,38 +70,24 @@ export const Footer: React.FC = () => {
                 <ExternalLink className="w-3 h-3 text-slate-500" />
               </a>
             </li>
-            <li>
-              <a
-                href="http://localhost:8080/v3/api-docs"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-white flex items-center gap-1"
-              >
-                <span>API Specification (JSON)</span>
-                <ExternalLink className="w-3 h-3 text-slate-500" />
-              </a>
-            </li>
-            <li>
-              <Link to="/settings" className="hover:text-white">Privacy Controls & Data Export</Link>
-            </li>
           </ul>
         </div>
 
-        {/* Safety Disclaimer */}
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
+        {/* Safety Notice */}
+        <div className="p-4 rounded-xl bg-surface-900 border border-surface-border">
           <h4 className="text-red-300 font-semibold text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
             <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
-            Safety & Legal Notice
+            Safety Notice
           </h4>
           <p className="text-[11px] text-slate-400 leading-relaxed">
-            LIFELINK OS does not guarantee third-party assistance availability, determine insurance eligibility, adjudicate legal liability, or diagnose bodily injuries. Always dial official emergency dispatch (911 / 112) for critical hazards.
+            LIFELINK OS provides guided decision support and does not replace emergency dispatch, medical triage, or legal counsel. Dial 911 / 112 if immediate danger exists.
           </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
-        <p>© 2026 LIFELINK OS. Built for mission-critical roadside incident response.</p>
-        <p className="text-slate-500">PWA Ready • React 18 / 19 • Java 21 / Spring Boot 3 • PostgreSQL</p>
+      <div className="max-w-7xl mx-auto pt-6 border-t border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
+        <p>© 2026 LIFELINK OS. Built for roadside safety and calm incident response.</p>
+        <p className="text-slate-500 font-mono">React 19 • Vite • Spring Boot • Offline Fallback Ready</p>
       </div>
     </footer>
   );

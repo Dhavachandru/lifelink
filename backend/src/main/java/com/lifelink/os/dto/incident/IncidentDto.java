@@ -23,6 +23,7 @@ public class IncidentDto {
     private boolean locationSharedExplicitly;
     private String summary;
     private String assistanceNeed;
+    private boolean isDemo;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -47,10 +48,12 @@ public class IncidentDto {
         dto.setLocationSharedExplicitly(incident.isLocationSharedExplicitly());
         dto.setSummary(incident.getSummary());
         dto.setAssistanceNeed(incident.getAssistanceNeed());
+        dto.setDemo(incident.isDemo());
         dto.setCreatedAt(incident.getCreatedAt());
         dto.setUpdatedAt(incident.getUpdatedAt());
         return dto;
     }
+
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -97,8 +100,12 @@ public class IncidentDto {
     public String getAssistanceNeed() { return assistanceNeed; }
     public void setAssistanceNeed(String assistanceNeed) { this.assistanceNeed = assistanceNeed; }
 
+    public boolean isDemo() { return isDemo; }
+    public void setDemo(boolean demo) { this.isDemo = demo; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }

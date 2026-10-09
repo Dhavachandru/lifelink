@@ -28,6 +28,7 @@ public class IncidentDetailDto {
     private String aiAssessmentJson;
     private LocalDateTime resolvedAt;
     private String resolutionNotes;
+    private boolean isDemo;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -58,10 +59,12 @@ public class IncidentDetailDto {
         dto.setAiAssessmentJson(incident.getAiAssessmentJson());
         dto.setResolvedAt(incident.getResolvedAt());
         dto.setResolutionNotes(incident.getResolutionNotes());
+        dto.setDemo(incident.isDemo());
         dto.setCreatedAt(incident.getCreatedAt());
         dto.setUpdatedAt(incident.getUpdatedAt());
         return dto;
     }
+
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -114,8 +117,12 @@ public class IncidentDetailDto {
     public String getResolutionNotes() { return resolutionNotes; }
     public void setResolutionNotes(String resolutionNotes) { this.resolutionNotes = resolutionNotes; }
 
+    public boolean isDemo() { return isDemo; }
+    public void setDemo(boolean demo) { this.isDemo = demo; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }

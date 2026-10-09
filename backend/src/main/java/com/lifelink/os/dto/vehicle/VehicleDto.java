@@ -21,6 +21,7 @@ public class VehicleDto {
     private LocalDate pucExpiryDate;
     private LocalDate warrantyExpiryDate;
     private boolean primary;
+    private boolean isDemo;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -43,10 +44,12 @@ public class VehicleDto {
         dto.setPucExpiryDate(vehicle.getPucExpiryDate());
         dto.setWarrantyExpiryDate(vehicle.getWarrantyExpiryDate());
         dto.setPrimary(vehicle.isPrimary());
+        dto.setDemo(vehicle.isDemo());
         dto.setCreatedAt(vehicle.getCreatedAt());
         dto.setUpdatedAt(vehicle.getUpdatedAt());
         return dto;
     }
+
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -93,7 +96,11 @@ public class VehicleDto {
     public boolean isPrimary() { return primary; }
     public void setPrimary(boolean primary) { this.primary = primary; }
 
+    public boolean isDemo() { return isDemo; }
+    public void setDemo(boolean demo) { this.isDemo = demo; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
+
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }

@@ -10,6 +10,7 @@ public class UserDto {
     private String fullName;
     private String phoneNumber;
     private String role;
+    private boolean isDemo;
     private LocalDateTime createdAt;
 
     public UserDto() {}
@@ -21,6 +22,7 @@ public class UserDto {
         dto.setFullName(user.getFullName());
         dto.setPhoneNumber(user.getPhoneNumber());
         dto.setRole(user.getRole());
+        dto.setDemo(user.isDemo());
         dto.setCreatedAt(user.getCreatedAt());
         return dto;
     }
@@ -40,6 +42,10 @@ public class UserDto {
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
 
+    public boolean isDemo() { return isDemo; }
+    public void setDemo(boolean demo) { isDemo = demo; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
+

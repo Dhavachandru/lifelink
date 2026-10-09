@@ -100,6 +100,20 @@ public class VehicleController {
         return ResponseEntity.ok(ApiResponse.ok("Document deleted", "Document removed"));
     }
 
+    @GetMapping("/documents/{docId}/download")
+    @Operation(summary = "Download a protected vehicle document (Owner-Authorized)")
+    public ResponseEntity<byte[]> downloadDocument(@PathVariable("docId") UUID docId) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+        VehicleDocumentDto doc = vehicleService.getVehicleDocumentById(docId, userId);
+        byte[] fileData = vehicleService.downloadVehicleDocument(docId, userId);
+
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.getFileName() + "\"")
+                .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, doc.getContentType())
+                .body(fileData);
+    }
+
+
     @GetMapping("/{id}/services")
     @Operation(summary = "List service and maintenance history for a vehicle")
     public ResponseEntity<ApiResponse<List<VehicleServiceRecordDto>>> getServiceRecords(@PathVariable("id") UUID id) {

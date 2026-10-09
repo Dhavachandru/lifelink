@@ -56,8 +56,12 @@ public class Vehicle {
     @Column(name = "is_primary", nullable = false)
     private boolean isPrimary = false;
 
+    @Column(name = "is_demo", nullable = false)
+    private boolean isDemo = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
@@ -118,7 +122,11 @@ public class Vehicle {
     public boolean isPrimary() { return isPrimary; }
     public void setPrimary(boolean primary) { isPrimary = primary; }
 
+    public boolean isDemo() { return isDemo; }
+    public void setDemo(boolean demo) { isDemo = demo; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
+
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }

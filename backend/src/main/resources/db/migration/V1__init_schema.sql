@@ -8,6 +8,7 @@ CREATE TABLE users (
     full_name VARCHAR(255) NOT NULL,
     phone_number VARCHAR(50),
     role VARCHAR(50) NOT NULL DEFAULT 'USER',
+    is_demo BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -57,6 +58,7 @@ CREATE TABLE vehicles (
     puc_expiry_date DATE,
     warranty_expiry_date DATE,
     is_primary BOOLEAN NOT NULL DEFAULT FALSE,
+    is_demo BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -112,6 +114,7 @@ CREATE TABLE incidents (
     ai_assessment_json TEXT,
     resolved_at TIMESTAMP,
     resolution_notes TEXT,
+    is_demo BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

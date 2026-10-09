@@ -4,14 +4,15 @@
 -- Default demo user: driver@lifelink.os / Lifelink123!
 -- BCrypt password hash for 'Lifelink123!': $2a$10$e8Z4w1yYvO/5wzE0v1KqCeHkJp8fQz7j8a9gK2m3n4o5p6q7r8s9t -> let's use standard $2a$10$wN9a36h7RknFzM6NlJ18QeFkW87GgO12l9NlO7FwQk6p0hYVq3bma (or we can initialize via DataInitializer in Spring as well)
 
-INSERT INTO users (id, email, password_hash, full_name, phone_number, role, created_at, updated_at)
+INSERT INTO users (id, email, password_hash, full_name, phone_number, role, is_demo, created_at, updated_at)
 VALUES (
     'a0000000-0000-0000-0000-000000000001',
     'driver@lifelink.os',
-    '$2a$10$8.4k5o1Z5R4n0sJk0h9dLe3m2c1v0b9a8z7y6x5w4v3u2t1s0r9q8', -- Placeholder or will be ensured by DataInitializer
+    '$2a$10$8.4k5o1Z5R4n0sJk0h9dLe3m2c1v0b9a8z7y6x5w4v3u2t1s0r9q8', -- Initialized/updated by DataInitializer
     'Alex Mercer',
     '+1 (555) 234-5678',
     'USER',
+    TRUE,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 );
@@ -56,7 +57,7 @@ VALUES
     CURRENT_TIMESTAMP
 );
 
-INSERT INTO vehicles (id, user_id, make, model, year_val, license_plate, vin, color, fuel_type, insurance_policy_number, insurance_provider, insurance_expiry_date, puc_expiry_date, warranty_expiry_date, is_primary, created_at, updated_at)
+INSERT INTO vehicles (id, user_id, make, model, year_val, license_plate, vin, color, fuel_type, insurance_policy_number, insurance_provider, insurance_expiry_date, puc_expiry_date, warranty_expiry_date, is_primary, is_demo, created_at, updated_at)
 VALUES 
 (
     'd0000000-0000-0000-0000-000000000001',
@@ -73,6 +74,7 @@ VALUES
     CURRENT_DATE + INTERVAL '45' DAY,
     CURRENT_DATE + INTERVAL '120' DAY,
     CURRENT_DATE + INTERVAL '380' DAY,
+    TRUE,
     TRUE,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
@@ -93,6 +95,7 @@ VALUES
     CURRENT_DATE + INTERVAL '180' DAY,
     CURRENT_DATE - INTERVAL '60' DAY,
     FALSE,
+    TRUE,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 );
@@ -162,7 +165,7 @@ VALUES
     CURRENT_TIMESTAMP
 );
 
-INSERT INTO incidents (id, user_id, vehicle_id, incident_type, urgency, status, title, description, address, latitude, longitude, location_shared_explicitly, summary, assistance_need, created_at, updated_at)
+INSERT INTO incidents (id, user_id, vehicle_id, incident_type, urgency, status, title, description, address, latitude, longitude, location_shared_explicitly, summary, assistance_need, is_demo, created_at, updated_at)
 VALUES 
 (
     '10000000-0000-0000-0000-000000000001',
@@ -179,6 +182,7 @@ VALUES
     TRUE,
     'Coolant system failure indicated with thermal warning. Driver positioned vehicle on wide shoulder and stopped engine.',
     'TOWING',
+    TRUE,
     CURRENT_TIMESTAMP - INTERVAL '35' MINUTE,
     CURRENT_TIMESTAMP - INTERVAL '5' MINUTE
 );

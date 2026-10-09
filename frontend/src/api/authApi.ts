@@ -36,4 +36,11 @@ export const authApi = {
   exportUserData: (): Promise<any> => {
     return apiClient<any>('/users/me/export');
   },
+
+  deleteAccount: (): Promise<any> => {
+    return apiClient<any>('/users/me', {
+      method: 'DELETE',
+    });
+  },
 };
+

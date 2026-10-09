@@ -68,8 +68,12 @@ public class Incident {
     @Column(name = "resolution_notes", columnDefinition = "TEXT")
     private String resolutionNotes;
 
+    @Column(name = "is_demo", nullable = false)
+    private boolean isDemo = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
@@ -136,7 +140,11 @@ public class Incident {
     public String getResolutionNotes() { return resolutionNotes; }
     public void setResolutionNotes(String resolutionNotes) { this.resolutionNotes = resolutionNotes; }
 
+    public boolean isDemo() { return isDemo; }
+    public void setDemo(boolean demo) { isDemo = demo; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
+
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }

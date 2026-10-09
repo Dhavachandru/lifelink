@@ -7,6 +7,7 @@ import { contactApi } from '../api/contactApi';
 import { Incident, Vehicle, EmergencyContact } from '../types';
 import { UrgencyBadge, IncidentStatusBadge } from '../components/StatusBadge';
 import { EmergencyDisclaimerBanner } from '../components/EmergencyDisclaimerBanner';
+import { Button } from '../components/design-system/Button';
 import { OnboardingModal } from './OnboardingModal';
 import {
   ShieldAlert,
@@ -15,13 +16,11 @@ import {
   AlertTriangle,
   Clock,
   ArrowRight,
-  Plus,
   Phone,
-  FileText,
-  Calendar,
-  CheckCircle2,
   ChevronRight,
   ShieldCheck,
+  AlertOctagon,
+  Users,
 } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
@@ -58,11 +57,15 @@ export const DashboardPage: React.FC = () => {
     }
   }, []);
 
-  const activeIncidents = incidents.filter(i => i.status !== 'RESOLVED' && i.status !== 'CANCELLED');
-  const pastIncidents = incidents.filter(i => i.status === 'RESOLVED' || i.status === 'CANCELLED');
+  const activeIncidents = incidents.filter(
+    (i) => i.status !== 'RESOLVED' && i.status !== 'CANCELLED'
+  );
+  const pastIncidents = incidents.filter(
+    (i) => i.status === 'RESOLVED' || i.status === 'CANCELLED'
+  );
 
-  // Identify documents expiring within 30 days
-  const expiringVehicles = vehicles.filter(v => {
+  // Identify documents expiring within 45 days
+  const expiringVehicles = vehicles.filter((v) => {
     if (!v.insuranceExpiryDate) return false;
     const expiry = new Date(v.insuranceExpiryDate);
     const now = new Date();
@@ -70,322 +73,407 @@ export const DashboardPage: React.FC = () => {
     return diffDays >= 0 && diffDays <= 45;
   });
 
+  if (loading) {
+    return (
+      <div className="py-24 text-center text-slate-400">
+        <div className="w-8 h-8 border-2 border-forest-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-xs">Loading response dashboard...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pb-16">
-      {/* Pervasive safety disclaimer */}
+    <div className="text-slate-100">
       <EmergencyDisclaimerBanner dismissible={true} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        {/* Welcome header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+      {showOnboarding && <OnboardingModal onClose={() => setShowOnboarding(false)} />}
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12 space-y-8">
+        {/* Welcome & Preparedness Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-surface-border">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider font-mono">Response Readiness: ACTIVE</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-xs font-semibold text-forest-400 uppercase tracking-wider font-mono">
+                System Status: Ready
+              </span>
+              <span className="w-2 h-2 rounded-full bg-forest-400" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Welcome back, {user?.fullName || 'Driver'}
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Welcome, {user?.fullName || 'Driver'}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400">
-              LIFELINK OS is monitoring your active vehicles, document validity, and roadside readiness.
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+              LIFELINK OS is monitoring your registered vehicles, document validity, and emergency response readiness.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              to="/report"
-              className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs shadow-glow-red flex items-center gap-2 transition-all transform hover:-translate-y-0.5"
+          <div className="flex items-center gap-3 shrink-0">
+            <Button
+              variant="emergency"
+              size="md"
+              icon={<ShieldAlert className="w-4 h-4" />}
+              onClick={() => navigate('/report')}
             >
-              <ShieldAlert className="w-4 h-4" />
-              <span>Report Incident</span>
-            </Link>
-            <Link
-              to="/vault"
-              className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-750 text-xs font-semibold flex items-center gap-2 transition-all"
+              Report an incident
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              icon={<Car className="w-4 h-4 text-forest-400" />}
+              onClick={() => navigate('/vault')}
             >
-              <Car className="w-4 h-4 text-emerald-400" />
-              <span>Vehicle Vault</span>
-            </Link>
+              Vehicle Vault
+            </Button>
           </div>
         </div>
 
-        {/* Quick Incident Triggers Banner */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          <button
-            onClick={() => navigate('/report?type=VEHICLE_BREAKDOWN')}
-            className="p-5 rounded-2xl bg-gradient-to-br from-amber-950/40 to-slate-900 border border-amber-800/40 hover:border-amber-500/60 text-left transition-all group flex items-start justify-between shadow-lg"
-          >
+        {/* Prominent "What happened?" Incident Entry Point */}
+        <section aria-labelledby="what-happened-title" className="space-y-3">
+          <div className="flex items-center justify-between">
             <div>
-              <div className="w-10 h-10 rounded-xl bg-amber-950/80 flex items-center justify-center text-amber-400 border border-amber-700/60 mb-3 group-hover:scale-105 transition-transform">
-                <Wrench className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition-colors">
-                Vehicle Breakdown
-              </h3>
-              <p className="text-xs text-slate-300 mt-1 max-w-sm leading-relaxed">
-                Overheating, flat tire, dead battery, steam, smoke, or mechanical failure. Instant triage protocol.
+              <h2 id="what-happened-title" className="text-base sm:text-lg font-bold text-white tracking-tight">
+                What happened?
+              </h2>
+              <p className="text-xs text-slate-400">
+                Choose an incident type below to start guided safety steps and incident triage.
               </p>
             </div>
-            <ArrowRight className="w-5 h-5 text-amber-400 group-hover:translate-x-1 transition-transform shrink-0" />
-          </button>
-
-          <button
-            onClick={() => navigate('/report?type=VEHICLE_ACCIDENT')}
-            className="p-5 rounded-2xl bg-gradient-to-br from-red-950/40 to-slate-900 border border-red-800/40 hover:border-red-500/60 text-left transition-all group flex items-start justify-between shadow-lg"
-          >
-            <div>
-              <div className="w-10 h-10 rounded-xl bg-red-950/80 flex items-center justify-center text-red-400 border border-red-700/60 mb-3 group-hover:scale-105 transition-transform">
-                <ShieldAlert className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-white group-hover:text-red-300 transition-colors">
-                Vehicle Accident / Collision
-              </h3>
-              <p className="text-xs text-slate-300 mt-1 max-w-sm leading-relaxed">
-                Bodily safety triage, non-emergency dispatch, safe evidence checklists, and insurance claim prep.
-              </p>
-            </div>
-            <ArrowRight className="w-5 h-5 text-red-400 group-hover:translate-x-1 transition-transform shrink-0" />
-          </button>
-        </div>
-
-        {/* Document Expiry Warnings (if any) */}
-        {expiringVehicles.length > 0 && (
-          <div className="mb-8 p-4 rounded-2xl bg-amber-950/30 border border-amber-600/40">
-            <div className="flex items-center gap-2.5 mb-2">
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
-              <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider">
-                Action Required: Upcoming Policy & Certificate Expiries
-              </h4>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {expiringVehicles.map(v => (
-                <div key={v.id} className="p-3 rounded-xl bg-slate-900/90 border border-slate-750 flex items-center justify-between text-xs">
-                  <div>
-                    <span className="font-semibold text-white">{v.make} {v.model} ({v.licensePlate})</span>
-                    <p className="text-[11px] text-amber-400 mt-0.5">
-                      Insurance expires: <strong>{v.insuranceExpiryDate}</strong>
-                    </p>
-                  </div>
-                  <Link
-                    to="/vault"
-                    className="px-2.5 py-1 rounded bg-amber-900/60 hover:bg-amber-800/80 text-amber-200 text-[11px] font-medium border border-amber-700 transition-colors"
-                  >
-                    Update in Vault
-                  </Link>
-                </div>
-              ))}
-            </div>
+            <span className="text-[11px] text-slate-400 hidden sm:inline">
+              Instant step-by-step triage
+            </span>
           </div>
-        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Column: Active & Recent Incidents */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Active Incidents */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                  <h2 className="text-base font-bold text-white tracking-tight">Active Incident Protocols</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Vehicle Breakdown Trigger */}
+            <button
+              onClick={() => navigate('/report?type=VEHICLE_BREAKDOWN')}
+              className="p-5 rounded-2xl bg-surface-card hover:bg-surface-elevated border border-surface-border hover:border-amber-700/60 text-left transition-all group flex items-start justify-between shadow-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            >
+              <div className="pr-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-950/60 border border-amber-700/60 flex items-center justify-center text-amber-400 mb-3 group-hover:scale-105 transition-transform">
+                  <Wrench className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-mono text-slate-400">{activeIncidents.length} active</span>
+                <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition-colors">
+                  Vehicle Breakdown
+                </h3>
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                  Mechanical fault, flat tire, dead battery, engine overheating, or strange smoke. Instant roadside safety protocol.
+                </p>
+                <div className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-amber-400 group-hover:translate-x-0.5 transition-transform">
+                  <span>Start breakdown protocol</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </div>
               </div>
+              <ArrowRight className="w-5 h-5 text-amber-400 group-hover:translate-x-1 transition-transform shrink-0 mt-1" />
+            </button>
 
-              {activeIncidents.length === 0 ? (
-                <div className="p-8 rounded-2xl bg-slate-900/50 border border-slate-800 text-center space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mx-auto text-emerald-400">
-                    <ShieldCheck className="w-6 h-6" />
-                  </div>
-                  <h4 className="text-sm font-semibold text-white">All Clear — No Active Emergencies</h4>
-                  <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
-                    You have no ongoing breakdowns or accident protocols. If something happens on the road, use the instant report buttons above.
-                  </p>
+            {/* Vehicle Accident Trigger */}
+            <button
+              onClick={() => navigate('/report?type=VEHICLE_ACCIDENT')}
+              className="p-5 rounded-2xl bg-surface-card hover:bg-surface-elevated border border-surface-border hover:border-red-700/60 text-left transition-all group flex items-start justify-between shadow-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            >
+              <div className="pr-4">
+                <div className="w-10 h-10 rounded-xl bg-red-950/60 border border-red-700/60 flex items-center justify-center text-red-400 mb-3 group-hover:scale-105 transition-transform">
+                  <AlertOctagon className="w-5 h-5" />
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {activeIncidents.map(inc => (
-                    <div
-                      key={inc.id}
-                      onClick={() => navigate(`/incidents/${inc.id}`)}
-                      className="p-5 rounded-2xl bg-slate-900 border border-slate-750 hover:border-slate-650 cursor-pointer transition-all shadow-md group relative overflow-hidden"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-2">
-                          <UrgencyBadge urgency={inc.urgency} />
-                          <IncidentStatusBadge status={inc.status} />
-                        </div>
-                        <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
-
-                      <h3 className="text-base font-bold text-white group-hover:text-emerald-300 transition-colors">
-                        {inc.title}
-                      </h3>
-                      <p className="text-xs text-slate-300 mt-1 line-clamp-2 leading-relaxed">
-                        {inc.summary || inc.description}
-                      </p>
-
-                      {inc.address && (
-                        <div className="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                          <span className="truncate max-w-[80%]">📍 {inc.address}</span>
-                          <span className="text-emerald-400 font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                            Open Protocol <ChevronRight className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                <h3 className="text-base font-bold text-white group-hover:text-red-300 transition-colors">
+                  Vehicle Accident / Collision
+                </h3>
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                  Traffic collision, scratch, fender bender, or ditch slide. Bodily safety triage, non-emergency dispatch, and safe evidence checklists.
+                </p>
+                <div className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-red-400 group-hover:translate-x-0.5 transition-transform">
+                  <span>Start accident protocol</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-red-400 group-hover:translate-x-1 transition-transform shrink-0 mt-1" />
+            </button>
+          </div>
+        </section>
+
+        {/* Active Incidents Section (Shown first) */}
+        <section aria-labelledby="active-incidents-title" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h2 id="active-incidents-title" className="text-base sm:text-lg font-bold text-white tracking-tight">
+                Active Incidents
+              </h2>
+              {activeIncidents.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-red-950 text-red-300 border border-red-800/60 text-xs font-semibold">
+                  {activeIncidents.length} in progress
+                </span>
               )}
             </div>
+            {activeIncidents.length > 0 && (
+              <Link to="/incidents" className="text-xs font-medium text-forest-400 hover:underline">
+                View all incidents
+              </Link>
+            )}
+          </div>
 
-            {/* Resolved History */}
-            {pastIncidents.length > 0 && (
-              <div>
-                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Incident History</h3>
-                <div className="space-y-2.5">
-                  {pastIncidents.slice(0, 3).map(inc => (
-                    <div
-                      key={inc.id}
-                      onClick={() => navigate(`/incidents/${inc.id}`)}
-                      className="p-4 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-slate-750 cursor-pointer flex items-center justify-between transition-colors text-xs"
-                    >
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-white">{inc.title}</span>
-                          <IncidentStatusBadge status={inc.status} />
+          {activeIncidents.length === 0 ? (
+            <div className="p-6 rounded-2xl bg-surface-card border border-surface-border text-center flex flex-col items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-surface-elevated border border-surface-border flex items-center justify-center text-forest-400 mb-2">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-semibold text-white">No active incidents</h3>
+              <p className="text-xs text-slate-400 max-w-sm mt-0.5 mb-3">
+                All registered vehicles and routes are clear. If trouble occurs, tap &ldquo;What happened?&rdquo; above.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeIncidents.map((incident) => (
+                <div
+                    key={incident.id}
+                    className="p-5 rounded-2xl bg-surface-card border border-surface-border hover:border-slate-500 transition-all text-left flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                        <div className="flex items-center gap-2">
+                          <UrgencyBadge urgency={incident.urgency} />
+                          <IncidentStatusBadge status={incident.status} />
                         </div>
-                        <span className="text-slate-400 text-[11px]">
-                          {new Date(inc.createdAt).toLocaleDateString()} • {inc.incidentType.replace('_', ' ')}
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {new Date(incident.createdAt).toLocaleDateString([], {
+                            month: 'short',
+                            day: 'numeric',
+                          })}
                         </span>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-slate-500" />
+
+                      <h4 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                        {incident.title}
+                      </h4>
+                      <p className="text-xs text-slate-300 mt-1 line-clamp-2 leading-relaxed">
+                        {incident.description}
+                      </p>
+
+                      <div className="mt-3 text-xs text-slate-400 flex flex-wrap items-center gap-3">
+                        {incident.vehicleInfo && (
+                          <span className="flex items-center gap-1">
+                            <Car className="w-3.5 h-3.5" />
+                            <span>{incident.vehicleInfo}</span>
+                          </span>
+                        )}
+                        {incident.address && (
+                          <span className="truncate max-w-[200px]">
+                            {incident.address}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  ))}
+
+                    <div className="mt-4 pt-3 border-t border-surface-border flex items-center justify-between">
+                      <span className="text-[11px] text-forest-400 font-medium">
+                        Cockpit action required
+                      </span>
+                      <Link
+                        to={`/incidents/${incident.id}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-elevated hover:bg-surface-800 text-white font-medium text-xs border border-surface-border transition-colors group"
+                      >
+                        <span>Resume Cockpit</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-forest-400 group-hover:translate-x-0.5 transition-transform" />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </section>
+
+        {/* Expiring Documents & Warnings */}
+        {expiringVehicles.length > 0 && (
+          <section aria-label="Expiring Documents Alert">
+            <div className="p-4 sm:p-5 rounded-2xl bg-amber-950/25 border border-amber-800/40 text-left flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-amber-200">
+                    Policy Expiry Alert ({expiringVehicles.length} {expiringVehicles.length === 1 ? 'vehicle' : 'vehicles'})
+                  </h4>
+                  <p className="text-xs text-amber-100/90 mt-0.5">
+                    {expiringVehicles.map((v) => `${v.make} ${v.model} insurance expires on ${v.insuranceExpiryDate}`).join(' • ')}
+                  </p>
                 </div>
+              </div>
+              <Link
+                to="/vault?tab=documents"
+                className="px-3.5 py-1.5 rounded-xl bg-amber-800 hover:bg-amber-700 text-white font-medium text-xs shrink-0 transition-colors"
+              >
+                Renew / Update Policy
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* Secondary Grid: Saved Vehicles & Emergency Contacts */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Saved Vehicles (2 Cols) */}
+          <div className="lg:col-span-2 space-y-3 text-left">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-2">
+                <Car className="w-4 h-4 text-forest-400" />
+                <span>Registered Vehicles</span>
+              </h3>
+              <Link to="/vault" className="text-xs text-forest-400 hover:underline">
+                Manage Vault ({vehicles.length})
+              </Link>
+            </div>
+
+            {vehicles.length === 0 ? (
+              <div className="p-5 rounded-xl bg-surface-card border border-surface-border text-center">
+                <p className="text-xs text-slate-400 mb-2">No vehicles registered yet.</p>
+                <Button size="sm" variant="secondary" onClick={() => navigate('/vault')}>
+                  Add First Vehicle
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {vehicles.map((v) => (
+                  <div
+                    key={v.id}
+                    className="p-4 rounded-xl bg-surface-card border border-surface-border hover:border-slate-600 transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-white">
+                        {v.year} {v.make} {v.model}
+                      </span>
+                      {v.primary && (
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-forest-950 text-forest-300 border border-forest-800/60 font-mono">
+                          Primary
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="space-y-1 text-xs text-slate-400">
+                      <p className="font-mono text-slate-300">Plate: {v.licensePlate}</p>
+                      {v.insuranceProvider && (
+                        <p className="truncate">Insurer: {v.insuranceProvider}</p>
+                      )}
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-surface-border flex items-center justify-between text-[11px]">
+                      <span className="text-slate-400">
+                        {v.insuranceExpiryDate
+                          ? `Expires: ${v.insuranceExpiryDate}`
+                          : 'No expiry registered'}
+                      </span>
+                      <Link
+                        to={`/vault?vehicleId=${v.id}`}
+                        className="text-forest-400 hover:underline font-medium"
+                      >
+                        Details
+                      </Link>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Right Column: Vehicle Vault & Contacts */}
-          <div className="space-y-8">
-            {/* Vehicle Vault Widget */}
-            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-750 shadow-md">
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
-                <div className="flex items-center gap-2">
-                  <Car className="w-4 h-4 text-emerald-400" />
-                  <h3 className="text-sm font-bold text-white">Registered Vehicles</h3>
-                </div>
-                <Link to="/vault" className="text-xs text-emerald-400 hover:underline">
-                  Manage Vault
-                </Link>
-              </div>
+          {/* Emergency Contacts Widget (1 Col) */}
+          <div className="space-y-3 text-left">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-2">
+                <Users className="w-4 h-4 text-forest-400" />
+                <span>Emergency Contacts</span>
+              </h3>
+              <Link to="/contacts" className="text-xs text-forest-400 hover:underline">
+                Manage ({contacts.length})
+              </Link>
+            </div>
 
-              {vehicles.length === 0 ? (
-                <div className="text-center py-6">
-                  <p className="text-xs text-slate-400 mb-3">No vehicles added yet.</p>
-                  <Link
-                    to="/vault"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold"
+            {contacts.length === 0 ? (
+              <div className="p-5 rounded-xl bg-surface-card border border-surface-border text-center">
+                <p className="text-xs text-slate-400 mb-2">No emergency contacts saved.</p>
+                <Button size="sm" variant="secondary" onClick={() => navigate('/contacts')}>
+                  Add Contact
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {contacts.slice(0, 3).map((c) => (
+                  <div
+                    key={c.id}
+                    className="p-3.5 rounded-xl bg-surface-card border border-surface-border flex items-center justify-between gap-3"
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Vehicle</span>
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {vehicles.map(v => (
-                    <div key={v.id} className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 text-xs">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-white text-sm">
-                          {v.year} {v.make} {v.model}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-white truncate">
+                          {c.name}
                         </span>
-                        {v.primary && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800/60">
-                            PRIMARY
+                        {c.primary && (
+                          <span className="text-[9px] px-1 py-0.2 rounded bg-forest-950 text-forest-300 border border-forest-800/60 font-mono">
+                            Primary
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center justify-between text-[11px] text-slate-400">
-                        <span>Plate: <strong className="text-slate-200">{v.licensePlate}</strong></span>
-                        <span>{v.fuelType}</span>
-                      </div>
-                      {v.insuranceProvider && (
-                        <div className="mt-2 pt-2 border-t border-slate-850 text-[10px] text-slate-400 flex items-center justify-between">
-                          <span>Insurer: {v.insuranceProvider}</span>
-                          <span>Policy: {v.insurancePolicyNumber || 'On file'}</span>
-                        </div>
-                      )}
+                      <span className="text-[11px] text-slate-400 block truncate">
+                        {c.relationship} • {c.phoneNumber}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
 
-            {/* Emergency Contacts Widget */}
-            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-750 shadow-md">
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-red-400" />
-                  <h3 className="text-sm font-bold text-white">Emergency Contacts</h3>
-                </div>
-                <Link to="/contacts" className="text-xs text-emerald-400 hover:underline">
-                  Manage
+                    <a
+                      href={`tel:${c.phoneNumber}`}
+                      className="p-2 rounded-lg bg-surface-elevated hover:bg-forest-900/60 text-slate-300 hover:text-forest-300 border border-surface-border transition-colors"
+                      title={`Call ${c.name}`}
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                ))}
+
+                <Link
+                  to="/contacts"
+                  className="block text-center py-2 text-xs text-slate-400 hover:text-white transition-colors"
+                >
+                  + Manage all emergency contacts
                 </Link>
               </div>
-
-              {contacts.length === 0 ? (
-                <div className="text-center py-6">
-                  <p className="text-xs text-slate-400 mb-3">No emergency contacts saved.</p>
-                  <Link
-                    to="/contacts"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 text-xs font-semibold"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Contact</span>
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-2.5">
-                  {contacts.map(c => (
-                    <div key={c.id} className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between text-xs">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-white">{c.name}</span>
-                          {c.primary && (
-                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-950 text-red-300 border border-red-800">
-                              PRIMARY
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[11px] text-slate-400">{c.relationship} • {c.phoneNumber}</span>
-                      </div>
-                      <a
-                        href={`tel:${c.phoneNumber}`}
-                        className="p-2 rounded-lg bg-emerald-950 text-emerald-400 hover:bg-emerald-900 transition-colors"
-                        title={`Call ${c.name}`}
-                      >
-                        <Phone className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
-      </main>
 
-      {/* Onboarding Modal if newly registered */}
-      <OnboardingModal
-        isOpen={showOnboarding}
-        onComplete={() => {
-          setShowOnboarding(false);
-          loadDashboardData();
-        }}
-      />
+        {/* Past Incidents Activity Section if available */}
+        {pastIncidents.length > 0 && (
+          <section aria-labelledby="past-activity-title" className="space-y-3 text-left">
+            <div className="flex items-center justify-between">
+              <h3 id="past-activity-title" className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-2">
+                <Clock className="w-4 h-4 text-slate-400" />
+                <span>Recent Resolved Incidents</span>
+              </h3>
+              <Link to="/incidents" className="text-xs text-slate-400 hover:underline">
+                View all past records
+              </Link>
+            </div>
+
+            <div className="space-y-2">
+              {pastIncidents.slice(0, 3).map((inc) => (
+                <div
+                  key={inc.id}
+                  className="p-3.5 rounded-xl bg-surface-card border border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                >
+                  <div className="flex items-center gap-3">
+                    <IncidentStatusBadge status={inc.status} />
+                    <span className="text-xs font-semibold text-white">{inc.title}</span>
+                    <span className="text-[11px] text-slate-400 hidden sm:inline">
+                      {new Date(inc.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  <Link
+                    to={`/incidents/${inc.id}`}
+                    className="text-xs text-forest-400 hover:underline font-medium self-end sm:self-auto"
+                  >
+                    View audit record &rarr;
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 };

@@ -48,4 +48,13 @@ public class UserController {
         Map<String, Object> data = userService.exportUserData(userId);
         return ResponseEntity.ok(ApiResponse.ok("User data export generated", data));
     }
+
+    @DeleteMapping("/me")
+    @Operation(summary = "Permanently delete current user account, vehicles, incidents, and files")
+    public ResponseEntity<ApiResponse<String>> deleteMyAccount() {
+        UUID userId = SecurityUtils.getCurrentUserId();
+        userService.deleteUserAccount(userId);
+        return ResponseEntity.ok(ApiResponse.ok("Account deleted", "Your account and all associated data have been permanently removed."));
+    }
 }
+

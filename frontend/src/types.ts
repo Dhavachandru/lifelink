@@ -12,6 +12,8 @@ export interface User {
   fullName: string;
   phoneNumber?: string;
   role: string;
+  demo?: boolean;
+  isDemo?: boolean;
   createdAt: string;
 }
 
@@ -39,9 +41,12 @@ export interface Vehicle {
   pucExpiryDate?: string;
   warrantyExpiryDate?: string;
   primary: boolean;
+  demo?: boolean;
+  isDemo?: boolean;
   createdAt: string;
   updatedAt: string;
 }
+
 
 export interface VehicleDocument {
   id: string;
@@ -114,9 +119,12 @@ export interface Incident {
   locationSharedExplicitly: boolean;
   summary?: string;
   assistanceNeed?: string;
+  demo?: boolean;
+  isDemo?: boolean;
   createdAt: string;
   updatedAt: string;
 }
+
 
 export interface IncidentDetail extends Incident {
   vehicle?: Vehicle;

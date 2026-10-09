@@ -4,59 +4,86 @@
 
 @layer base {
   :root {
-    --color-bg-primary: #0a0e17;
-    --color-bg-secondary: #111827;
-    --color-bg-card: #162032;
-    --color-border: #1f293d;
+    --color-bg-primary: #090d13;
+    --color-bg-secondary: #0f141c;
+    --color-bg-card: #131922;
+    --color-bg-elevated: #1a222e;
+    --color-border: #263140;
+    --color-border-subtle: #1a222d;
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #64748b;
+    --color-accent-forest: #059669;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
   }
 
   body {
-    background-color: #080d1a;
+    background-color: #090d13;
     color: #f1f5f9;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* Clear and accessible focus outlines */
+  :focus-visible {
+    outline: 2px solid #10b981;
+    outline-offset: 2px;
   }
 }
 
-/* Custom scrollbars */
+/* Restrained scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b1120;
+  background: #090d13;
 }
 ::-webkit-scrollbar-thumb {
-  background: #25334d;
+  background: #263140;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: #334155;
 }
 
-/* Glassmorphism helpers */
-.glass-panel {
-  background: rgba(17, 24, 39, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Restrained card & panel styles - calm, non-glowing */
+.calm-surface {
+  background-color: #131922;
+  border: 1px solid #263140;
 }
 
-.glass-card {
-  background: rgba(22, 32, 50, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.calm-surface-elevated {
+  background-color: #1a222e;
+  border: 1px solid #334155;
 }
 
-/* Pulse animation for active emergency triage */
-@keyframes softPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.02); }
+/* Reduced motion preference support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
-.animate-soft-pulse {
-  animation: softPulse 2.5s infinite ease-in-out;
+/* Print readiness for offline checklists */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  header, nav, footer, button, .no-print {
+    display: none !important;
+  }
 }
